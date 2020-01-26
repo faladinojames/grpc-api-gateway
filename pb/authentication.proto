@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package com.connectroutes.authentication;
+
+option go_package="proto";
+
+message RequestOtpRequest{
+    string phone_number = 1;
+}
+
+message RequestOtpResponse{
+    string message = 1;
+}
+
+message SubmitOtpRequest{
+    int32 otp = 1;
+    string phone_number = 2;
+}
+
+message SubmitOtpResponse{
+    string otp_authentication_id = 1;
+}
+
+message SubmitPersonalInfoRequest{
+    string full_name = 1;
+    string email_address = 2;
+    string phone_number = 3;
+    string otp_authentication_id = 4;
+}
+
+message SubmitPersonalInfoResponse{
+    string token = 1;
+}
+
+service AuthenticationService{
+    rpc RequestOtp(RequestOtpRequest) returns (RequestOtpResponse){};
+    rpc SubmitOtp(SubmitOtpRequest) returns (SubmitOtpResponse){};
+    rpc SubmitPersonalInfo(SubmitPersonalInfoRequest) returns (SubmitPersonalInfoResponse){};
+}

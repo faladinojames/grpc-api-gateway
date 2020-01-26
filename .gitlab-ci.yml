@@ -1,0 +1,43 @@
+image: google/cloud-sdk:latest
+
+stages:
+  - build
+  - deploy
+
+build:
+  stage: build
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
+    - cat /tmp/$CI_PIPELINE_ID.json | docker login -u _json_key --password-stdin https://gcr.io
+    - docker build -t $CONTAINER_IMAGE:$CI_COMMIT_SHA -t $CONTAINER_IMAGE:latest .
+    - echo updating docker image to $CI_COMMIT_SHA
+    - docker push $CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - docker push $CONTAINER_IMAGE
+  after_script:
+    - rm /tmp/$CI_PIPELINE_ID.json
+  only:
+    - master
+
+deploy:
+  stage: deploy
+  environment:
+    name: production
+    url: http://api.routes.com.ng
+  only:
+    - master
+  script:
+    - echo $DEPLOY_KEY_FILE_PRODUCTION > /tmp/$CI_PIPELINE_ID.json
+    - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
+    - gcloud config set project $PROJECT_ID_PRODUCTION
+    - gcloud info
+    - gcloud config set project $PROJECT_ID_PRODUCTION
+    - gcloud config set compute/zone us-central1-a
+    - gcloud config set compute/region us-centrala
+    - gcloud container clusters get-credentials rotues-services-cluster
+    - echo updating kubernetes to $CI_COMMIT_SHA
+    - kubectl set image deployment $DEPLOYMENT_NAME $DEPLOYMENT_NAME=$CONTAINER_IMAGE:$CI_COMMIT_SHA
+  after_script:
+    - rm /tmp/$CI_PIPELINE_ID.json

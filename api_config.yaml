@@ -1,0 +1,11 @@
+type: google.api.Service
+config_version: 3
+
+# Name of the service configuration.
+name: routes-api-gateway.endpoints.routes-services.cloud.goog
+
+# API title to appear in the user interface (Google Cloud Console).
+title: Route Api Gateway
+apis:
+  - name: com.connectroutes.gateway.PingService
+  - name: com.connectroutes.authentication.AuthenticationService
