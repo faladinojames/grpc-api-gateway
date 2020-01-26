@@ -38,6 +38,6 @@ deploy:
     - gcloud config set compute/region us-centrala
     - gcloud container clusters get-credentials rotues-services-cluster
     - echo updating kubernetes to $CI_COMMIT_SHA
-    - kubectl set image deployment $DEPLOYMENT_NAME esp=$CONTAINER_IMAGE:$CI_COMMIT_SHA
+    - kubectl set image deployment $DEPLOYMENT_NAME echo=$CONTAINER_IMAGE:$CI_COMMIT_SHA
   after_script:
     - rm /tmp/$CI_PIPELINE_ID.json
