@@ -39,5 +39,13 @@ spec:
           ports:
             - containerPort: 50051
           env:
-            - name: SERVICES
-              value: "{\"/com.connectroutes.authentication\": \"routes-authentication-service:80\"}"
+            - name: REDIS_ADDRESS
+                valueFrom:
+                  secretKeyRef:
+                    name: routes-api-gateway-secret
+                    key: redis_address
+            - name: REDIS_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: routes-api-gateway-secret
+                    key: redis_password

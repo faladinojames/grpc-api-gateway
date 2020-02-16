@@ -6,6 +6,8 @@ import (
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -13,45 +15,52 @@ import (
 	"routes-api-gateway/proxy"
 	"strings"
 )
+import _ "github.com/joho/godotenv/autoload"
 
 // server is used to implement helloworld.GreeterServer.
 type server struct{}
 
 // SayHello implements helloworld.GreeterServer
-func (s *server) Ping(ctx context.Context, in *pb.PingRequest) (*pb.PingResponse	, error) {
+func (s *server) Ping(ctx context.Context, in *pb.PingRequest) (*pb.PingResponse, error) {
 	log.Printf("Handling SayHello request [%v] with context %v", in, ctx)
 	return &pb.PingResponse{Message: "You sent " + in.Message}, nil
 }
 
+var services map[string]interface{}
 
-var services map[string]string
+func getTargetFromMethodName(methodName string) (string, bool) {
 
-func getTargetFromMethodName(methodName string) string{
-
-	for k, v := range services{
-		if strings.HasPrefix(methodName, k){
-			return v
+	for k, v := range services {
+		if strings.HasPrefix(methodName, k) {
+			config := v.(map[string]interface{})
+			return config["address"].(string), config["requiresAuth"].(bool)
 		}
 	}
 
-	return ""
+	return "", false
 }
 
-func getServices()  {
-	/*file, err := os.Open("/files/services.json")
+func getServices() {
+	file, err := os.Open("/files/services.json")
 
-	if err != nil{
-		panic(err)
+	if err != nil {
+		//panic(err)
+		file, err = os.Open("./services.json")
+
+		if err != nil {
+			panic(err)
+		}
 	}
+
 	defer file.Close()
 
 	bytes, err := ioutil.ReadAll(file)
 
-	if err != nil{
+	if err != nil {
 		panic(err)
-	}*/
+	}
 
-	json.Unmarshal([]byte(os.Getenv("SERVICES")), &services)
+	json.Unmarshal(bytes, &services)
 
 }
 func main() {
@@ -60,17 +69,32 @@ func main() {
 	getServices()
 
 	lis, err := net.Listen("tcp", "0.0.0.0:50051")
-	if err != nil{
+	if err != nil {
 		log.Fatalf("Failed to listen %v", err)
 	}
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
-		target := getTargetFromMethodName(fullMethodName)
+		target, requiresAuth := getTargetFromMethodName(fullMethodName)
 
-		fmt.Printf("Routing %s to %s \n",fullMethodName, target)
+		fmt.Printf("Routing %s to %s \n", fullMethodName, target)
 
-
-		if target == ""{
+		if target == "" {
 			return ctx, nil, grpc.Errorf(codes.Unimplemented, "Unknown method")
+		}
+
+		if requiresAuth {
+			md, _ := metadata.FromIncomingContext(ctx)
+			sessionId := md.Get("x-session-id")[0]
+			if sessionId == "" {
+				return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Unauthenticated")
+			} else {
+				userData, err := getUserFromSession(sessionId)
+				fmt.Println(err)
+				if err != nil {
+					return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Invalid Authentication")
+				}
+				forwardMD := metadata.Pairs("x-user", userData)
+				ctx = metadata.NewIncomingContext(ctx, metadata.Join(md, forwardMD))
+			}
 		}
 
 		conn, err := grpc.DialContext(ctx, target, grpc.WithCodec(proxy.Codec()), grpc.WithInsecure())
@@ -83,7 +107,7 @@ func main() {
 
 	pb.RegisterPingServiceServer(s, &server{})
 
-	if err := s.Serve(lis); err!=nil{
+	if err := s.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}
 }

@@ -1,6 +1,6 @@
 
-# Default to Go 1.11
-ARG GO_VERSION=1.11
+# Default to Go 1.12
+ARG GO_VERSION=1.12
 
 # First stage: build the executable.
 FROM golang:${GO_VERSION}-alpine AS builder
@@ -24,8 +24,6 @@ WORKDIR /src
 COPY ./go.mod ./go.sum ./
 RUN go mod download
 
-RUN mkdir /files
-COPY ./services.json /files
 
 # Import the code from the context.
 COPY ./ ./
@@ -34,6 +32,9 @@ COPY ./ ./
 RUN CGO_ENABLED=0 go build \
     -installsuffix 'static' \
     -o /app .
+
+RUN mkdir /files
+COPY ./services.json /files
 
 # Final stage: the running container.
 FROM scratch AS final
@@ -46,6 +47,9 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 # Import the compiled executable from the first stage.
 COPY --from=builder /app /app
+
+COPY --from=builder /files /files
+
 
 # Declare the port on which the webserver will be exposed.
 # As we're going to run the executable as an unprivileged user, we can't bind

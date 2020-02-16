@@ -1,1 +1,10 @@
-{"/com.connectroutes.authentication": "10.60.3.202:50052"}
+{
+  "/com.connectroutes.authentication": {
+      "address": "routes-authentication-service:80",
+      "requiresAuth": false
+  },
+  "/com.connectroutes.trip": {
+    "address": "routes-trip-service:80",
+    "requiresAuth": true
+  }
+}
