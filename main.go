@@ -100,7 +100,7 @@ func main() {
 					return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Invalid Authentication")
 				}
 				forwardMD := metadata.Pairs("x-user", userData)
-				ctx = metadata.NewIncomingContext(ctx, metadata.Join(md, forwardMD))
+				ctx = metadata.NewOutgoingContext(ctx, metadata.Join(md, forwardMD))
 			}
 		}
 
