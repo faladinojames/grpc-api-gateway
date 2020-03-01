@@ -35,17 +35,17 @@ spec:
           ports:
             - containerPort: 9000
         - name: echo
-          image: gcr.io/routes-services/routes-api-gateway:1.6
+          image: gcr.io/routes-services/routes-api-gateway:latest
           ports:
             - containerPort: 50051
           env:
             - name: REDIS_ADDRESS
-                valueFrom:
-                  secretKeyRef:
-                    name: routes-api-gateway-secret
-                    key: redis_address
+              valueFrom:
+                secretKeyRef:
+                  name: routes-api-gateway-secret
+                  key: redis_address
             - name: REDIS_PASSWORD
-                valueFrom:
-                  secretKeyRef:
-                    name: routes-api-gateway-secret
-                    key: redis_password
+              valueFrom:
+                secretKeyRef:
+                  name: routes-api-gateway-secret
+                  key: redis_password

@@ -45,7 +45,7 @@ func getServices() {
 
 	if err != nil {
 		//panic(err)
-		file, err = os.Open("./services.json")
+		file, err = os.Open("./local-services.json")
 
 		if err != nil {
 			panic(err)
@@ -83,12 +83,15 @@ func main() {
 
 		if requiresAuth {
 			md, _ := metadata.FromIncomingContext(ctx)
-			sessionId := md.Get("x-session-id")[0]
+			sessionId := ""
+			if len(md.Get("x-session-id")) > 0 {
+				sessionId = md.Get("x-session-id")[0]
+			}
+
 			if sessionId == "" {
 				return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Unauthenticated")
 			} else {
 				userData, err := getUserFromSession(sessionId)
-				fmt.Println(err)
 				if err != nil {
 					return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Invalid Authentication")
 				}

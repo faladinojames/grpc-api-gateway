@@ -6,5 +6,9 @@
   "/com.connectroutes.trip": {
     "address": "routes-trip-service:80",
     "requiresAuth": true
+  },
+  "/com.connectroutes.payment": {
+    "address": "routes-payment-service:80",
+    "requiresAuth": true
   }
 }

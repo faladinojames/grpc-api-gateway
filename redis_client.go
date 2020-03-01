@@ -9,6 +9,7 @@ import (
 var redisClient *redis.Client
 
 func init() {
+	fmt.Println(os.Getenv("REDIS_ADDRESS") + "coke")
 	redisClient = redis.NewClient(&redis.Options{
 		Addr:     os.Getenv("REDIS_ADDRESS"),
 		Password: os.Getenv("REDIS_PASSWORD"), // no password set

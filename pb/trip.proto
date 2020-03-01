@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package com.connectroutes.trip;
+
+option go_package="proto";
+
+message Address{
+    string description = 1;
+    string place_id = 2;
+}
+
+message Amount{
+    string currency = 1;
+    double amount = 2;
+}
+
+enum TripStatus {
+    created = 0;
+    in_progress = 1;
+    cancelled = 2;
+    done = 3;
+}
+
+message Trip{
+    string id = 1;
+    Address pickup_address = 2;
+    Address destination_address = 3;
+    TripStatus status = 4;
+    int64 request_time = 5;
+    int64 pickup_time = 6;
+    int64 end_time = 7;
+    Driver driver = 8;
+    Vehicle vehicle = 9;
+    string invoice_id = 10;
+    Amount cost = 11;
+}
+
+message Driver{
+    string id = 1;
+    string picture_url = 2;
+    double rating = 3;
+    double name = 4;
+}
+
+message Vehicle{
+    string id = 1;
+    string manufacturer = 2;
+    string model = 3;
+    string plate_no = 4;
+    int32 color = 5;
+    bool has_air_conditioning = 6;
+}
+
+message AutoCompleteAddressRequest{
+    string description = 1;
+}
+
+message AutoCompleteAddressResponse{
+    repeated Address addresses = 1;
+}
+message TripHistoryRequest{
+    int32 page = 1;
+    int32 size = 2;
+}
+
+message TripHistoryResponse{
+    repeated Trip trips = 1;
+    int32 page = 2;
+    int32 size = 3;
+    int32 total = 4;
+}
+
+enum AddressType {
+    home = 0;
+    work = 1;
+}
+
+message SetDefaultAddressRequest{
+    string place_id = 1;
+    string description = 2;
+    AddressType type = 3;
+}
+
+message SetDefaultAddressResponse{
+    string message = 1;
+}
+
+service TripService{
+    rpc AutoCompleteAddress(AutoCompleteAddressRequest) returns (AutoCompleteAddressResponse){};
+    rpc TripHistory(TripHistoryRequest) returns (TripHistoryResponse){};
+    rpc SetDefaultAddress(SetDefaultAddressRequest) returns (SetDefaultAddressResponse){};
+}

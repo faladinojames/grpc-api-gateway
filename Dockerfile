@@ -6,7 +6,6 @@ ARG GO_VERSION=1.12
 FROM golang:${GO_VERSION}-alpine AS builder
 
 
-RUN echo hello
 # Create the user and group files that will be used in the running container to
 # run the process as an unprivileged user.
 RUN mkdir /user && \
