@@ -93,6 +93,9 @@ func main() {
 			} else {
 				userData, err := getUserFromSession(sessionId)
 
+				fmt.Println("userData")
+				fmt.Println(userData)
+				fmt.Println(err)
 				if err != nil {
 					return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Invalid Authentication")
 				}
