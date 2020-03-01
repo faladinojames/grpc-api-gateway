@@ -1,9 +1,11 @@
 package main
 
+import "errors"
+
 func getUserFromSession(sessionId string) (string, error) {
-	userData, err := redisClient.HGet(sessionId, "user_data").Result()
+	userData, _ := redisClient.HGet(sessionId, "user_data").Result()
 	if userData != "" {
 		return userData, nil
 	}
-	return "", err
+	return "", errors.New("session not found")
 }

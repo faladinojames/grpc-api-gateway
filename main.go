@@ -92,6 +92,7 @@ func main() {
 				return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Unauthenticated")
 			} else {
 				userData, err := getUserFromSession(sessionId)
+
 				if err != nil {
 					return ctx, nil, grpc.Errorf(codes.Unauthenticated, "Invalid Authentication")
 				}
