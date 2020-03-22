@@ -7,6 +7,10 @@
       "address": "routes-authentication-service:80",
       "requiresAuth": false
   },
+  "/com.connectroutes.profile": {
+    "address": "routes-profile-service:80",
+    "requiresAuth": true
+  },
   "/com.connectroutes.trip": {
     "address": "routes-trip-service:80",
     "requiresAuth": true
