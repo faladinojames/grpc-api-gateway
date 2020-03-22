@@ -1,4 +1,8 @@
 {
+  "/com.connectroutes.authentication.DriverRegistrationService": {
+    "address": "routes-driver-registration-service:80",
+    "requiresAuth": true
+  },
   "/com.connectroutes.authentication": {
       "address": "routes-authentication-service:80",
       "requiresAuth": false

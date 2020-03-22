@@ -9,5 +9,6 @@ title: Route Api Gateway
 apis:
   - name: com.connectroutes.gateway.PingService
   - name: com.connectroutes.authentication.AuthenticationService
+  - name: com.connectroutes.authentication.DriverRegistrationService
   - name: com.connectroutes.trip.TripService
   - name: com.connectroutes.payment.PaymentService

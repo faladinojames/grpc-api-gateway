@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package com.connectroutes.authentication;
+
+option go_package="proto";
+
+
+message Chunk {
+    bytes content = 1;
+}
+
+enum DocumentType {
+    driver_license = 0;
+    vehicle_document = 1;
+    road_worthiness = 2;
+}
+
+enum UploadStatusCode {
+    Failed = 0;
+    Ok = 1;
+}
+
+message UploadDocumentResponse {
+    string message = 1;
+    UploadStatusCode code = 2;
+}
+
+
+message GetVehicleModelsOrMakesRequest{
+    string make = 1;
+}
+
+message GetVehicleModelsOrMakesResponse{
+    repeated string vehicle_names = 1;
+}
+
+
+
+service DriverRegistrationService{
+    // To call the UploadDocument rpc, you need to send one of the {DocumentType} above as the first stream and the contents of the image(in chunks) in subsequent steams
+    // when calling UploadDocument rpc, you must pass a x-session-id meta-data representing the current user.
+    rpc UploadDocument(stream Chunk) returns (UploadDocumentResponse){};
+    rpc GetVehicleModelsOrMakes(GetVehicleModelsOrMakesRequest) returns (GetVehicleModelsOrMakesResponse){};
+}
